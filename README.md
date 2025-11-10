@@ -76,7 +76,7 @@ Task Servo1 dijalankan di Core 0
 Task Servo2 dijalankan di Core 1
 
 
-Pembagian Core dan Tugas
+### 3. Pembagian Core dan Tugas
 
 | Core       | Periferal                                                     | Tugas                                |
 | ---------- | ------------------------------------------------------------- | ------------------------------------ |
@@ -86,7 +86,7 @@ Pembagian Core dan Tugas
 Masing-masing periferal berjalan sendiri, tidak saling berbagi variabel atau interrupt.
 Tujuannya agar performa tiap core dapat diamati secara murni tanpa interkoneksi.
 
-Eksekusi
+### Eksekusi Program
 1. Upload salah satu program .ino ke board ESP32-S3.
 2. Buka Serial Monitor (baud rate 115200).
 3. Amati output task dari kedua core:

@@ -101,7 +101,7 @@ Eksekusi
 [Core1] OLED → Update Display OK
 ```
 
-4.Ubah input (putar rotary, tekan tombol, ubah posisi potensiometer).
+4. Ubah input (putar rotary, tekan tombol, ubah posisi potensiometer).
 5. Lihat bagaimana periferal bereaksi real-time tanpa lag.
 6. Perhatikan bahwa kedua core berjalan simultan dan task tidak saling mengganggu.
 

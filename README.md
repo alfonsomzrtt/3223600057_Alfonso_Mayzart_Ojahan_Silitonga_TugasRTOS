@@ -98,7 +98,7 @@ Eksekusi
 [Core1] Stepper2 → CCW | Step 8
 [Core0] Encoder1 Position: 23
 [Core1] Encoder2 Position: -12
-[Core1] OLED → Update Display OK
+[Core1] OLED → Halo dari CORE 0
 ```
 
 4. Ubah input (putar rotary, tekan tombol, ubah posisi potensiometer).

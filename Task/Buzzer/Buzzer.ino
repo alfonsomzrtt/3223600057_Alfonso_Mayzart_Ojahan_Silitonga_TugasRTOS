@@ -1,73 +1,69 @@
-const int GPIO_LED0_CORE0 = 2;   
-const int GPIO_LED1_CORE1 = 36;   
-const int GPIO_LED2_CORE0 = 20;   
+#define BUZZER_PIN 1
 
-TaskHandle_t TaskCore0Handle = NULL;
-TaskHandle_t TaskCore1Handle = NULL;
+TaskHandle_t TaskCore0;
+TaskHandle_t TaskCore1;
 
-
-void TaskCore0(void *pvParameters) {
-  Serial.printf("TaskCore0 started on core %d\n", xPortGetCoreID());
-  
-  pinMode(GPIO_LED0_CORE0, OUTPUT);
-  pinMode(GPIO_LED2_CORE0, OUTPUT);
-
-  bool led0State = false;
-  bool led2State = false;
-
-  for (;;) {
-    led0State = !led0State;
-    led2State = !led2State;
-
-    digitalWrite(GPIO_LED0_CORE0, led0State ? HIGH : LOW);
-    digitalWrite(GPIO_LED2_CORE0, led2State ? HIGH : LOW);
-
-    vTaskDelay(pdMS_TO_TICKS(500)); 
-  }
-}
-
-void TaskCore1(void *pvParameters) {
-  Serial.printf("TaskCore1 started on core %d\n", xPortGetCoreID());
-  
-  pinMode(GPIO_LED1_CORE1, OUTPUT);
-  bool led1State = false;
-
-  for (;;) {
-    led1State = !led1State;
-    digitalWrite(GPIO_LED1_CORE1, led1State ? HIGH : LOW);
-    vTaskDelay(pdMS_TO_TICKS(200)); 
-  }
-}
+volatile bool giliranCore0 = true; 
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("Starting tasks...");
+
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  Serial.println("=== Perbandingan Core 0 dan Core 1 (BUZZER) ===");
 
   xTaskCreatePinnedToCore(
-    TaskCore0,          
-    "LED_Core0_Task",   
-    2048,              
-    NULL,               
-    1,                  
-    &TaskCore0Handle,   
-    0                  
-  );
-
-  xTaskCreatePinnedToCore(
-    TaskCore1,
-    "LED_Core1_Task",
+    taskCore0,
+    "TaskBuzzerCore0",
     2048,
     NULL,
     1,
-    &TaskCore1Handle,
-    1                  
+    &TaskCore0,
+    0  
   );
 
-  if (TaskCore0Handle != NULL) Serial.println("TaskCore0 created");
-  if (TaskCore1Handle != NULL) Serial.println("TaskCore1 created");
+  xTaskCreatePinnedToCore(
+    taskCore1,
+    "TaskBuzzerCore1",
+    2048,
+    NULL,
+    1,
+    &TaskCore1,
+    1  
+  );
 }
 
 void loop() {
-  vTaskDelay(pdMS_TO_TICKS(1000)); 
+  vTaskDelay(pdMS_TO_TICKS(1000));
+}
+
+void taskCore0(void *pvParameters) {
+  for (;;) {
+    if (giliranCore0) {
+      Serial.printf("CORE %d: Buzzer bunyi lambat\n", xPortGetCoreID());
+      tone(BUZZER_PIN, 1000);     
+      vTaskDelay(pdMS_TO_TICKS(500));
+      noTone(BUZZER_PIN);
+      vTaskDelay(pdMS_TO_TICKS(500));
+
+      giliranCore0 = false;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+
+void taskCore1(void *pvParameters) {
+  for (;;) {
+    if (!giliranCore0) {
+      Serial.printf("CORE %d: Buzzer bunyi cepat\n", xPortGetCoreID());
+      tone(BUZZER_PIN, 2000);    
+      vTaskDelay(pdMS_TO_TICKS(200));
+      noTone(BUZZER_PIN);
+      vTaskDelay(pdMS_TO_TICKS(200));
+
+      giliranCore0 = true;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
 }

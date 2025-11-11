@@ -105,3 +105,86 @@ Tujuannya agar performa tiap core dapat diamati secara murni tanpa interkoneksi.
 5. Lihat bagaimana periferal bereaksi real-time tanpa lag.
 6. Perhatikan bahwa kedua core berjalan simultan dan task tidak saling mengganggu.
 
+
+###Task 2
+# ESP32-S3 Dual-Core FreeRTOS Project
+
+## Deskripsi Proyek
+Proyek ini menunjukkan cara memaksimalkan penggunaan **dua core prosesor ESP32-S3** untuk menjalankan beberapa **periferal secara paralel** tanpa saling mengganggu.  
+Semua task berjalan di atas **FreeRTOS**, dengan pembagian beban yang efisien antara **Core 0** dan **Core 1**.
+
+Proyek ini dibuat dan diuji menggunakan **Wokwi Simulator**, dengan satu file `main.ino` dan file wiring `diagram.json`.
+
+---
+
+## 🎯 Tujuan
+- Memanfaatkan dua core ESP32-S3 untuk menjalankan task secara simultan.  
+- Menerapkan konsep multitasking menggunakan FreeRTOS.  
+- Membagi beban kerja antar-core agar sistem tetap responsif.  
+- Mengamati pembagian prioritas task dan efeknya terhadap real-time response.  
+- Menunjukkan independensi antar-periferal (satu periferal tidak mempengaruhi yang lain).
+
+---
+
+## ⚙️ Perangkat yang digunakan
+Total ada **10 periferal** yang terhubung ke ESP32-S3:
+
+| No | Periferal | Fungsi | Core | Catatan |
+|----|------------|--------|------|----------|
+| 1 | Potensiometer | Input analog (ADC) | Core 0 | Mengukur nilai tegangan |
+| 2 | LED (3 warna) | Indikator status | Core 1 | Menyala bergantian |
+| 3 | Push Button (2x) | Input digital | Core 0 | Deteksi tekanan tombol |
+| 4 | Buzzer | Output audio | Core 1 | Beep periodik |
+| 5 | Stepper Motor (Bipolar) | Output mekanik | Core 0 | Bergerak berurutan |
+| 6 | Rotary Encoder KY-040 | Input digital | Core 1 | Mendeteksi putaran |
+| 7 | Servo Motor | Output PWM | Core 0 | Mengayun maju–mundur |
+| 8 | OLED Display SSD1306 | Output I²C | Core 1 | Menampilkan status |
+| 9 | Serial Monitor | Debug output | — | Menampilkan semua log |
+| 10 | FreeRTOS Task | Software | Core 0/1 | Mengatur multitasking |
+
+---
+
+## Pinout dan Wiring
+Semua koneksi tercatat dalam `diagram.json`.  
+Contoh sebagian pin utama:
+
+| Periferal | GPIO | Keterangan |
+|------------|-------|-------------|
+| Potensiometer | 14 | ADC Input |
+| LED Merah / Hijau / Oranye | 19 / 20 / 21 | Output digital |
+| Tombol 1 / 2 | 37 / 38 | Input digital |
+| Buzzer | 36 | PWM Output |
+| Stepper A+/A-/B+/B- | 15 / 16 / 7 / 6 | Driver step sequence |
+| Encoder CLK / DT | 41 / 42 | Interrupt input |
+| Servo PWM | 13 | Output PWM |
+| OLED SDA / SCL | 5 / 4 | I²C Interface |
+
+---
+
+## Struktur FreeRTOS Task
+Setiap periferal dikontrol oleh satu task, yang dijalankan di core dan prioritas berbeda:
+
+| Task | Core | Prioritas | Fungsi |
+|------|------|------------|--------|
+| `taskPot` | 0 | 2 | Membaca ADC dari potensiometer |
+| `taskLED` | 1 | 2 | Menyalakan LED bergantian |
+| `taskButton` | 0 | 5 | Mendeteksi input tombol |
+| `taskBuzzer` | 1 | 1 | Mengeluarkan bunyi beep periodik |
+| `taskStepper` | 0 | 3 | Menjalankan motor stepper |
+| `taskEncoder` | 1 | 4 | Membaca rotary encoder |
+| `taskServo` | 0 | 3 | Menggerakkan servo bolak-balik |
+| `taskOLED` | 1 | 2 | Menampilkan data di OLED |
+
+---
+
+🚀 Langkah Menjalankan Program
+
+1. Buka proyek ini di Wokwi.
+2. Pastikan file berikut tersedia:
+  main.ino → berisi seluruh kode FreeRTOS dan logika periferal.
+  diagram.json → berisi wiring semua komponen.
+3. Klik “Run Simulation”.
+4. Buka Serial Monitor (Ctrl + Shift + M).
+5. Amati setiap periferal bekerja paralel dan log tampil real-time.
+6. Tekan tombol, ubah potensiometer, atau putar encoder untuk melihat respon individual.
+
